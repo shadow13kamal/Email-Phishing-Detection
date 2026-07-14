@@ -13,37 +13,60 @@ import re
 import string
 
 import joblib
-import nltk
-from nltk.corpus import stopwords
-from nltk.tokenize import word_tokenize
 
 # ---------------------------------------------------------------------------
-# Paths
+# Paths (absolute so they work on Vercel and locally)
 # ---------------------------------------------------------------------------
-MODELS_DIR = "models"
+BASE_DIR = os.path.dirname(os.path.abspath(__file__))
+MODELS_DIR = os.path.join(BASE_DIR, "models")
 MODEL_PATH = os.path.join(MODELS_DIR, "best_model.joblib")
 VECTORIZER_PATH = os.path.join(MODELS_DIR, "tfidf_vectorizer.joblib")
 METRICS_PATH = os.path.join(MODELS_DIR, "metrics.json")
 
 # ---------------------------------------------------------------------------
-# NLTK resources
+# Stop words (hardcoded fallback so NLTK download is not required on Vercel)
 # ---------------------------------------------------------------------------
-for resource in ("stopwords", "punkt", "punkt_tab"):
-    try:
-        nltk.data.find(
-            f"corpora/{resource}" if "stop" in resource else f"tokenizers/{resource}"
-        )
-    except LookupError:
-        try:
-            nltk.download(resource, quiet=True)
-        except Exception:
-            pass
+_FALLBACK_STOP_WORDS = {
+    'a', 'about', 'above', 'after', 'again', 'against', 'ain', 'all', 'am',
+    'an', 'and', 'any', 'are', 'aren', "aren't", 'as', 'at', 'be', 'because',
+    'been', 'before', 'being', 'below', 'between', 'both', 'but', 'by', 'can',
+    'couldn', "couldn't", 'd', 'did', 'didn', "didn't", 'do', 'does',
+    'doesn', "doesn't", 'doing', 'don', "don't", 'down', 'during', 'each',
+    'few', 'for', 'from', 'further', 'had', 'hadn', "hadn't", 'has', 'hasn',
+    "hasn't", 'have', 'haven', "haven't", 'having', 'he', "he'd", "he'll",
+    "he's", 'her', 'here', 'hers', 'herself', 'him', 'himself', 'his',
+    'how', 'i', "i'd", "i'll", "i'm", "i've", 'if', 'in', 'into', 'is',
+    'isn', "isn't", 'it', "it'd", "it'll", "it's", 'its', 'itself', 'just',
+    'll', 'm', 'ma', 'me', 'mightn', "mightn't", 'more', 'most', 'mustn',
+    "mustn't", 'my', 'myself', 'needn', "needn't", 'no', 'nor', 'not',
+    'now', 'o', 'of', 'off', 'on', 'once', 'only', 'or', 'other', 'our',
+    'ours', 'ourselves', 'out', 'over', 'own', 're', 's', 'same', 'shan',
+    "shan't", 'she', "she'd", "she'll", "she's", 'should', "should've",
+    'shouldn', "shouldn't", 'so', 'some', 'such', 't', 'than', 'that',
+    "that'll", 'the', 'their', 'theirs', 'them', 'themselves', 'then',
+    'there', 'these', 'they', "they'd", "they'll", "they're", "they've",
+    'this', 'those', 'through', 'to', 'too', 'under', 'until', 'up', 've',
+    'very', 'was', 'wasn', "wasn't", 'we', "we'd", "we'll", "we're",
+    "we've", 'were', 'weren', "weren't", 'what', 'when', 'where', 'which',
+    'while', 'who', 'whom', 'why', 'will', 'with', 'won', "won't",
+    'wouldn', "wouldn't", 'y', 'you', "you'd", "you'll", "you're",
+    "you've", 'your', 'yours', 'yourself', 'yourselves',
+}
 
+STOP_WORDS = set(_FALLBACK_STOP_WORDS)
+
+# Try to use NLTK stopwords if available (for local dev consistency)
 try:
-    STOP_WORDS = set(stopwords.words("english"))
-except LookupError:
-    nltk.download("stopwords", quiet=True)
-    STOP_WORDS = set(stopwords.words("english"))
+    from nltk.corpus import stopwords as _nltk_stopwords
+    STOP_WORDS = set(_nltk_stopwords.words("english"))
+except Exception:
+    pass
+
+
+def _tokenize(text):
+    """Simple regex tokenizer — no NLTK dependency needed."""
+    return re.findall(r"\b\w\w+\b", text)
+
 
 # ---------------------------------------------------------------------------
 # Suspicious keywords (lowercase) for indicator detection
@@ -112,11 +135,7 @@ def preprocess_text(text):
     text = re.sub(r"https?://\S+|www\.\S+", " urlplaceholder ", text)
     text = text.translate(str.maketrans("", "", string.punctuation))
     text = re.sub(r"\d+", "", text)
-    try:
-        tokens = word_tokenize(text)
-    except LookupError:
-        nltk.download("punkt", quiet=True)
-        tokens = word_tokenize(text)
+    tokens = _tokenize(text)
     tokens = [w for w in tokens if w not in STOP_WORDS and len(w) > 2]
     return " ".join(tokens)
 
@@ -163,7 +182,6 @@ class PhishingDetector:
     def _extract_urls(self, text):
         """Return a list of URLs found in the raw email text."""
         urls = URL_PATTERN.findall(text)
-        # Deduplicate while preserving order
         seen = set()
         unique = []
         for url in urls:
@@ -185,15 +203,11 @@ class PhishingDetector:
     def _highlight(self, text, urls, keywords):
         """Return HTML with URLs and keywords highlighted via <mark> spans."""
         highlighted = text
-
-        # Escape HTML special characters first
         highlighted = (
             highlighted.replace("&", "&amp;")
             .replace("<", "&lt;")
             .replace(">", "&gt;")
         )
-
-        # Highlight URLs
         for url in urls:
             escaped_url = (
                 url.replace("&", "&amp;")
@@ -205,45 +219,31 @@ class PhishingDetector:
                     escaped_url,
                     f'<mark class="highlight-url">{escaped_url}</mark>',
                 )
-
-        # Highlight keywords (case-insensitive)
         for keyword in keywords:
             pattern = re.compile(re.escape(keyword), re.IGNORECASE)
             highlighted = pattern.sub(
                 r'<mark class="highlight-keyword">\g<0></mark>',
                 highlighted,
             )
-
         return highlighted
 
     def predict(self, email_text):
-        """Run the full prediction pipeline on a single email.
-
-        Returns a dict with:
-            prediction, confidence, risk_level, urls, keywords,
-            highlighted_html, model_name
-        """
+        """Run the full prediction pipeline on a single email."""
         if not email_text or not email_text.strip():
             raise ValueError("Email text cannot be empty.")
 
-        # Preprocess and vectorize
         processed = preprocess_text(email_text)
         features = self.vectorizer.transform([processed])
 
-        # Predict
         prediction_label = int(self.model.predict(features)[0])
         probabilities = self.model.predict_proba(features)[0]
         confidence = float(max(probabilities))
 
-        # Extract indicators
         urls = self._extract_urls(email_text)
         keywords = self._extract_keywords(email_text)
         suspicious_count = len(urls) + len(keywords)
 
-        # Risk level
         risk_level = calculate_risk_level(confidence, suspicious_count)
-
-        # Highlighted HTML
         highlighted_html = self._highlight(email_text, urls, keywords)
 
         result = {
