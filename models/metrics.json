@@ -1,0 +1,139 @@
+{
+  "best_model": "Logistic Regression",
+  "models": {
+    "Logistic Regression": {
+      "name": "Logistic Regression",
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "confusion_matrix": [
+        [
+          24,
+          0
+        ],
+        [
+          0,
+          24
+        ]
+      ],
+      "classification_report": {
+        "0": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1-score": 1.0,
+          "support": 24.0
+        },
+        "1": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1-score": 1.0,
+          "support": 24.0
+        },
+        "accuracy": 1.0,
+        "macro avg": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1-score": 1.0,
+          "support": 48.0
+        },
+        "weighted avg": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1-score": 1.0,
+          "support": 48.0
+        }
+      }
+    },
+    "Naive Bayes": {
+      "name": "Naive Bayes",
+      "accuracy": 0.9792,
+      "precision": 0.98,
+      "recall": 0.9792,
+      "f1_score": 0.9792,
+      "confusion_matrix": [
+        [
+          23,
+          1
+        ],
+        [
+          0,
+          24
+        ]
+      ],
+      "classification_report": {
+        "0": {
+          "precision": 1.0,
+          "recall": 0.9583333333333334,
+          "f1-score": 0.9787234042553191,
+          "support": 24.0
+        },
+        "1": {
+          "precision": 0.96,
+          "recall": 1.0,
+          "f1-score": 0.9795918367346939,
+          "support": 24.0
+        },
+        "accuracy": 0.9791666666666666,
+        "macro avg": {
+          "precision": 0.98,
+          "recall": 0.9791666666666667,
+          "f1-score": 0.9791576204950065,
+          "support": 48.0
+        },
+        "weighted avg": {
+          "precision": 0.98,
+          "recall": 0.9791666666666666,
+          "f1-score": 0.9791576204950064,
+          "support": 48.0
+        }
+      }
+    },
+    "Random Forest": {
+      "name": "Random Forest",
+      "accuracy": 1.0,
+      "precision": 1.0,
+      "recall": 1.0,
+      "f1_score": 1.0,
+      "confusion_matrix": [
+        [
+          24,
+          0
+        ],
+        [
+          0,
+          24
+        ]
+      ],
+      "classification_report": {
+        "0": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1-score": 1.0,
+          "support": 24.0
+        },
+        "1": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1-score": 1.0,
+          "support": 24.0
+        },
+        "accuracy": 1.0,
+        "macro avg": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1-score": 1.0,
+          "support": 48.0
+        },
+        "weighted avg": {
+          "precision": 1.0,
+          "recall": 1.0,
+          "f1-score": 1.0,
+          "support": 48.0
+        }
+      }
+    }
+  },
+  "dataset_size": 240,
+  "feature_count": 716
+}

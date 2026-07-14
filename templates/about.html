@@ -1,0 +1,166 @@
+{% extends "base.html" %}
+{% block title %}About &mdash; Phishing Email Detector{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="page-header">
+                <h1><i class="bi bi-info-circle"></i> About This Project</h1>
+                <p>Phishing Email Detection System &mdash; BCA Cyber Security Mini Project</p>
+            </div>
+
+            <div class="about-card mt-4">
+                <h2><i class="bi bi-book me-2"></i>Project Overview</h2>
+                <p>
+                    Phishing is a cyber-attack where attackers send fraudulent emails
+                    that appear to come from legitimate sources to steal sensitive
+                    information such as passwords, credit card numbers, and personal
+                    data. This project builds a Machine Learning-based web application
+                    that automatically detects whether an email is a phishing attempt
+                    or safe.
+                </p>
+                <p>
+                    The system uses Natural Language Processing (NLP) techniques to
+                    preprocess email text, TF-IDF for feature extraction, and three
+                    classification algorithms &mdash; Logistic Regression, Naive Bayes,
+                    and Random Forest &mdash; to identify phishing patterns. The
+                    best-performing model is automatically selected and deployed.
+                </p>
+            </div>
+
+            <div class="about-card mt-3">
+                <h2><i class="bi bi-gear me-2"></i>How the System Works</h2>
+                <ol class="about-list">
+                    <li><strong>Data Collection:</strong> A labeled dataset of phishing
+                        and legitimate emails is loaded from a CSV file.</li>
+                    <li><strong>Text Preprocessing:</strong> Email text is lowercased,
+                        punctuation is removed, and stop words are filtered out using
+                        NLTK tokenization.</li>
+                    <li><strong>Feature Extraction:</strong> The TF-IDF vectorizer
+                        converts preprocessed text into a numeric feature matrix with
+                        unigram and bigram features.</li>
+                    <li><strong>Model Training:</strong> Three classifiers are trained
+                        on 80% of the data. They are evaluated on the remaining 20%
+                        using accuracy, precision, recall, and F1 score.</li>
+                    <li><strong>Model Selection:</strong> The model with the highest
+                        F1 score is automatically selected and saved using Joblib.</li>
+                    <li><strong>Web Interface:</strong> A Flask web application lets
+                        users paste emails and receive instant predictions with
+                        confidence scores, risk levels, and highlighted indicators.</li>
+                </ol>
+            </div>
+
+            <div class="about-card mt-3">
+                <h2><i class="bi bi-tools me-2"></i>Technologies Used</h2>
+                <div class="tech-grid">
+                    <div class="tech-item">
+                        <i class="bi bi-code-slash"></i>
+                        <strong>Python</strong>
+                        <span>Core programming language</span>
+                    </div>
+                    <div class="tech-item">
+                        <i class="bi bi-globe"></i>
+                        <strong>Flask</strong>
+                        <span>Web framework</span>
+                    </div>
+                    <div class="tech-item">
+                        <i class="bi bi-graph-up"></i>
+                        <strong>Scikit-learn</strong>
+                        <span>Machine learning library</span>
+                    </div>
+                    <div class="tech-item">
+                        <i class="bi bi-translate"></i>
+                        <strong>NLTK</strong>
+                        <span>Natural language processing</span>
+                    </div>
+                    <div class="tech-item">
+                        <i class="bi bi-table"></i>
+                        <strong>Pandas</strong>
+                        <span>Data manipulation</span>
+                    </div>
+                    <div class="tech-item">
+                        <i class="bi bi-box-seam"></i>
+                        <strong>Joblib</strong>
+                        <span>Model serialization</span>
+                    </div>
+                    <div class="tech-item">
+                        <i class="bi bi-bootstrap"></i>
+                        <strong>Bootstrap 5</strong>
+                        <span>Responsive UI framework</span>
+                    </div>
+                    <div class="tech-item">
+                        <i class="bi bi-filetype-csv"></i>
+                        <strong>TF-IDF</strong>
+                        <span>Feature extraction</span>
+                    </div>
+                </div>
+            </div>
+
+            <div class="about-card mt-3">
+                <h2><i class="bi bi-diagram-3 me-2"></i>ML Models Compared</h2>
+                <table class="table table-custom">
+                    <thead>
+                        <tr>
+                            <th>Model</th>
+                            <th>Description</th>
+                            <th>Use Case</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>Logistic Regression</td>
+                            <td>Linear model for binary classification</td>
+                            <td>Fast, interpretable baseline</td>
+                        </tr>
+                        <tr>
+                            <td>Naive Bayes</td>
+                            <td>Probabilistic classifier based on Bayes' theorem</td>
+                            <td>Effective for text classification</td>
+                        </tr>
+                        <tr>
+                            <td>Random Forest</td>
+                            <td>Ensemble of decision trees</td>
+                            <td>Handles complex feature interactions</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="about-card mt-3">
+                <h2><i class="bi bi-lightbulb me-2"></i>Phishing Indicators Detected</h2>
+                <div class="row g-3">
+                    <div class="col-md-6">
+                        <h4>Suspicious URLs</h4>
+                        <ul class="about-list">
+                            <li>URLs with suspicious TLDs (.tk, .ml, .cf, .ga, .gq)</li>
+                            <li>URLs impersonating legitimate brands</li>
+                            <li>Shortened URLs (bit.ly, tinyurl)</li>
+                            <li>URLs with misspelled domain names</li>
+                        </ul>
+                    </div>
+                    <div class="col-md-6">
+                        <h4>Suspicious Keywords</h4>
+                        <ul class="about-list">
+                            <li>Urgency phrases ("act now", "immediate action")</li>
+                            <li>Account threats ("account suspended", "account locked")</li>
+                            <li>Financial lures ("lottery", "you have won", "gift card")</li>
+                            <li>Credential requests ("verify your account", "enter password")</li>
+                        </ul>
+                    </div>
+                </div>
+            </div>
+
+            <div class="about-card mt-3">
+                <h2><i class="bi bi-mortarboard me-2"></i>Academic Context</h2>
+                <p>
+                    This project is submitted as part of the Bachelor of Computer
+                    Applications (BCA) Cyber Security curriculum. It demonstrates
+                    the practical application of Machine Learning and Natural Language
+                    Processing to solve real-world cybersecurity problems.
+                </p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

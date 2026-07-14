@@ -1,0 +1,193 @@
+{% extends "base.html" %}
+{% block title %}Model Metrics &mdash; Phishing Email Detector{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="page-header">
+                <h1><i class="bi bi-graph-up"></i> Model Evaluation Metrics</h1>
+                <p>Performance comparison of all trained models.</p>
+            </div>
+
+            {% if metrics and metrics.models %}
+
+            <!-- Best model highlight -->
+            <div class="best-model-banner">
+                <div class="best-model-icon"><i class="bi bi-trophy-fill"></i></div>
+                <div>
+                    <div class="best-model-label">Best Performing Model</div>
+                    <div class="best-model-name">{{ metrics.best_model }}</div>
+                    <div class="best-model-detail">
+                        F1 Score: {{ "%.4f"|format(metrics.models[metrics.best_model].f1_score) }}
+                        &bull; Accuracy: {{ "%.4f"|format(metrics.models[metrics.best_model].accuracy) }}
+                    </div>
+                </div>
+            </div>
+
+            <!-- Comparison table -->
+            <div class="about-card mt-4">
+                <h2><i class="bi bi-table me-2"></i>Model Comparison</h2>
+                <div class="table-responsive">
+                    <table class="table table-custom">
+                        <thead>
+                            <tr>
+                                <th>Model</th>
+                                <th>Accuracy</th>
+                                <th>Precision</th>
+                                <th>Recall</th>
+                                <th>F1 Score</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for name, m in metrics.models.items() %}
+                            <tr class="{{ 'table-row-best' if name == metrics.best_model else '' }}">
+                                <td>
+                                    {{ name }}
+                                    {% if name == metrics.best_model %}
+                                    <i class="bi bi-star-fill text-warning ms-1"></i>
+                                    {% endif %}
+                                </td>
+                                <td>{{ "%.4f"|format(m.accuracy) }}</td>
+                                <td>{{ "%.4f"|format(m.precision) }}</td>
+                                <td>{{ "%.4f"|format(m.recall) }}</td>
+                                <td>{{ "%.4f"|format(m.f1_score) }}</td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Accuracy bars -->
+            <div class="about-card mt-3">
+                <h2><i class="bi bi-bar-chart me-2"></i>Accuracy Visualization</h2>
+                {% for name, m in metrics.models.items() %}
+                <div class="metric-bar-group">
+                    <div class="metric-bar-label">{{ name }}</div>
+                    <div class="metric-bar-track">
+                        <div class="metric-bar-fill"
+                             style="width: {{ m.accuracy * 100 }}%;
+                                    {% if name == metrics.best_model %}background: #16a34a;{% endif %}">
+                        </div>
+                    </div>
+                    <div class="metric-bar-value">{{ "%.2f"|format(m.accuracy * 100) }}%</div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Confusion matrices -->
+            <div class="row g-3 mt-1">
+                {% for name, m in metrics.models.items() %}
+                <div class="col-md-4">
+                    <div class="about-card">
+                        <h3 class="cm-title">{{ name }}</h3>
+                        <table class="confusion-matrix">
+                            <tr>
+                                <td class="cm-cell cm-tn">{{ m.confusion_matrix[0][0] }}</td>
+                                <td class="cm-cell cm-fp">{{ m.confusion_matrix[0][1] }}</td>
+                            </tr>
+                            <tr>
+                                <td class="cm-cell cm-fn">{{ m.confusion_matrix[1][0] }}</td>
+                                <td class="cm-cell cm-tp">{{ m.confusion_matrix[1][1] }}</td>
+                            </tr>
+                        </table>
+                        <div class="cm-legend">
+                            <div><span class="cm-dot cm-tn"></span>True Safe</div>
+                            <div><span class="cm-dot cm-fp"></span>False Phishing</div>
+                            <div><span class="cm-dot cm-fn"></span>False Safe</div>
+                            <div><span class="cm-dot cm-tp"></span>True Phishing</div>
+                        </div>
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+
+            <!-- Classification report -->
+            <div class="about-card mt-3">
+                <h2><i class="bi bi-file-text me-2"></i>Classification Report
+                    ({{ metrics.best_model }})</h2>
+                {% set report = metrics.models[metrics.best_model].classification_report %}
+                <div class="table-responsive">
+                    <table class="table table-custom">
+                        <thead>
+                            <tr>
+                                <th>Class</th>
+                                <th>Precision</th>
+                                <th>Recall</th>
+                                <th>F1-Score</th>
+                                <th>Support</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            {% for label, vals in report.items() %}
+                                {% if label not in ['accuracy', 'macro avg', 'weighted avg'] %}
+                                <tr>
+                                    <td>{{ 'Safe' if label == '0' else 'Phishing' }}</td>
+                                    <td>{{ "%.4f"|format(vals.precision) }}</td>
+                                    <td>{{ "%.4f"|format(vals.recall) }}</td>
+                                    <td>{{ "%.4f"|format(vals['f1-score']) }}</td>
+                                    <td>{{ vals.support }}</td>
+                                </tr>
+                                {% endif %}
+                            {% endfor %}
+                            <tr class="table-row-summary">
+                                <td>Accuracy</td>
+                                <td colspan="3">{{ "%.4f"|format(report.accuracy) }}</td>
+                                <td>{{ report['weighted avg'].support }}</td>
+                            </tr>
+                            <tr class="table-row-summary">
+                                <td>Macro Avg</td>
+                                <td>{{ "%.4f"|format(report['macro avg'].precision) }}</td>
+                                <td>{{ "%.4f"|format(report['macro avg'].recall) }}</td>
+                                <td>{{ "%.4f"|format(report['macro avg']['f1-score']) }}</td>
+                                <td>{{ report['macro avg'].support }}</td>
+                            </tr>
+                            <tr class="table-row-summary">
+                                <td>Weighted Avg</td>
+                                <td>{{ "%.4f"|format(report['weighted avg'].precision) }}</td>
+                                <td>{{ "%.4f"|format(report['weighted avg'].recall) }}</td>
+                                <td>{{ "%.4f"|format(report['weighted avg']['f1-score']) }}</td>
+                                <td>{{ report['weighted avg'].support }}</td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Dataset info -->
+            <div class="about-card mt-3">
+                <h2><i class="bi bi-database me-2"></i>Dataset Information</h2>
+                <div class="row g-3">
+                    <div class="col-md-4">
+                        <div class="info-stat">
+                            <div class="info-stat-value">{{ metrics.dataset_size }}</div>
+                            <div class="info-stat-label">Total Emails</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="info-stat">
+                            <div class="info-stat-value">{{ metrics.feature_count }}</div>
+                            <div class="info-stat-label">TF-IDF Features</div>
+                        </div>
+                    </div>
+                    <div class="col-md-4">
+                        <div class="info-stat">
+                            <div class="info-stat-value">80/20</div>
+                            <div class="info-stat-label">Train/Test Split</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            {% else %}
+            <div class="empty-state">
+                <i class="bi bi-exclamation-triangle"></i>
+                <h3>Metrics Not Available</h3>
+                <p>Train the model first by running: <code>python train_model.py</code></p>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}

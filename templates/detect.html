@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% block title %}Detect Email &mdash; Phishing Email Detector{% endblock %}
+
+{% block content %}
+<div class="container py-5">
+    <div class="row justify-content-center">
+        <div class="col-lg-10">
+            <div class="page-header">
+                <h1><i class="bi bi-search"></i> Email Detection</h1>
+                <p>Paste an email below to analyze it for phishing indicators.</p>
+            </div>
+
+            {% if error %}
+            <div class="alert alert-danger alert-dismissible fade show" role="alert">
+                <i class="bi bi-exclamation-triangle me-2"></i>{{ error }}
+                <button type="button" class="btn-close" data-bs-dismiss="alert"></button>
+            </div>
+            {% endif %}
+
+            <form method="POST" action="{{ url_for('detect') }}" id="detectForm">
+                <div class="form-group mb-3">
+                    <label for="emailText" class="form-label">
+                        <i class="bi bi-envelope me-1"></i>Email Content
+                    </label>
+                    <textarea name="email_text" id="emailText" class="form-control email-textarea"
+                              rows="10" placeholder="Paste the full email content here..."
+                              required>{{ request.form.email_text if request.form.email_text else '' }}</textarea>
+                </div>
+                <div class="d-flex gap-3">
+                    <button type="submit" class="btn btn-primary-lg">
+                        <i class="bi bi-shield-search me-2"></i>Detect Phishing
+                    </button>
+                    <button type="button" class="btn btn-outline-lg" onclick="clearText()">
+                        <i class="bi bi-eraser me-2"></i>Clear
+                    </button>
+                </div>
+            </form>
+
+            {% if result %}
+            <div class="result-section mt-4">
+                <div class="result-card
+                            {% if result.prediction == 'Phishing' %}
+                                result-phishing
+                            {% else %}
+                                result-safe
+                            {% endif %}">
+                    <div class="result-header">
+                        <div class="result-icon">
+                            {% if result.prediction == 'Phishing' %}
+                                <i class="bi bi-exclamation-octagon-fill"></i>
+                            {% else %}
+                                <i class="bi bi-shield-check-fill"></i>
+                            {% endif %}
+                        </div>
+                        <div>
+                            <div class="result-label">Prediction Result</div>
+                            <div class="result-prediction">{{ result.prediction }}</div>
+                        </div>
+                    </div>
+                    <div class="result-stats">
+                        <div class="result-stat">
+                            <span class="stat-key">Confidence</span>
+                            <span class="stat-val">{{ result.confidence }}%</span>
+                        </div>
+                        <div class="result-stat">
+                            <span class="stat-key">Risk Level</span>
+                            <span class="stat-val risk-badge risk-{{ result.risk_level|lower }}">
+                                {{ result.risk_level }}
+                            </span>
+                        </div>
+                        <div class="result-stat">
+                            <span class="stat-key">Model</span>
+                            <span class="stat-val text-small">{{ result.model_name }}</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Suspicious indicators -->
+                <div class="indicators-section mt-3">
+                    <h3><i class="bi bi-flag me-2"></i>Suspicious Indicators Found</h3>
+
+                    <div class="indicator-group">
+                        <h4><i class="bi bi-link-45deg me-2"></i>
+                            URLs Found ({{ result.urls_found|length }})</h4>
+                        {% if result.urls_found %}
+                        <ul class="indicator-list">
+                            {% for url in result.urls_found %}
+                            <li><code>{{ url }}</code></li>
+                            {% endfor %}
+                        </ul>
+                        {% else %}
+                        <p class="text-muted">No URLs found in this email.</p>
+                        {% endif %}
+                    </div>
+
+                    <div class="indicator-group">
+                        <h4><i class="bi bi-key me-2"></i>
+                            Phishing Keywords ({{ result.keywords_found|length }})</h4>
+                        {% if result.keywords_found %}
+                        <div class="keyword-tags">
+                            {% for kw in result.keywords_found %}
+                            <span class="keyword-tag">{{ kw }}</span>
+                            {% endfor %}
+                        </div>
+                        {% else %}
+                        <p class="text-muted">No suspicious keywords found.</p>
+                        {% endif %}
+                    </div>
+                </div>
+
+                <!-- Highlighted email -->
+                <div class="highlight-section mt-3">
+                    <h3><i class="bi bi-highlighter me-2"></i>Highlighted Email</h3>
+                    <div class="highlight-box">
+                        {{ result.highlighted_html|safe }}
+                    </div>
+                    <div class="highlight-legend">
+                        <span class="legend-item">
+                            <mark class="highlight-url">URL</mark> = Suspicious URL
+                        </span>
+                        <span class="legend-item">
+                            <mark class="highlight-keyword">Keyword</mark> = Phishing Keyword
+                        </span>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+function clearText() {
+    document.getElementById('emailText').value = '';
+}
+</script>
+{% endblock %}

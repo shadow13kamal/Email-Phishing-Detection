@@ -1,0 +1,137 @@
+{% extends "base.html" %}
+{% block title %}Home &mdash; Phishing Email Detector{% endblock %}
+
+{% block content %}
+<section class="hero-section">
+    <div class="container text-center">
+        <div class="hero-badge mb-3">
+            <i class="bi bi-cpu"></i> Machine Learning Powered
+        </div>
+        <h1 class="hero-title">Phishing Email Detection System</h1>
+        <p class="hero-subtitle">
+            An intelligent web application that analyzes email content using
+            Natural Language Processing and Machine Learning to identify
+            phishing attempts and keep your inbox safe.
+        </p>
+        <div class="hero-actions">
+            <a href="{{ url_for('detect') }}" class="btn btn-primary-lg">
+                <i class="bi bi-search me-2"></i>Detect an Email
+            </a>
+            <a href="{{ url_for('about') }}" class="btn btn-outline-lg">
+                <i class="bi bi-info-circle me-2"></i>Learn More
+            </a>
+        </div>
+    </div>
+</section>
+
+<section class="container py-5">
+    <div class="row g-4">
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card">
+                <div class="stat-icon stat-blue"><i class="bi bi-database"></i></div>
+                <div class="stat-value">{{ dataset_size }}</div>
+                <div class="stat-label">Training Emails</div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card">
+                <div class="stat-icon stat-green"><i class="bi bi-graph-up"></i></div>
+                <div class="stat-value">
+                    {% if metrics and metrics.models and metrics.models.get(model_name) %}
+                        {{ "%.1f"|format(metrics.models[model_name].accuracy * 100) }}%
+                    {% else %}
+                        &mdash;
+                    {% endif %}
+                </div>
+                <div class="stat-label">Model Accuracy</div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card">
+                <div class="stat-icon stat-orange"><i class="bi bi-cpu"></i></div>
+                <div class="stat-value text-small">{{ model_name }}</div>
+                <div class="stat-label">Best Model</div>
+            </div>
+        </div>
+        <div class="col-md-3 col-sm-6">
+            <div class="stat-card">
+                <div class="stat-icon stat-red"><i class="bi bi-shield-exclamation"></i></div>
+                <div class="stat-value">3</div>
+                <div class="stat-label">Models Compared</div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="container pb-5">
+    <h2 class="section-title text-center mb-4">How It Works</h2>
+    <div class="row g-4">
+        <div class="col-md-4">
+            <div class="feature-card">
+                <div class="feature-number">1</div>
+                <h3>Text Preprocessing</h3>
+                <p>Email text is lowercased, stripped of punctuation, tokenized,
+                   and filtered for stop words using NLTK.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="feature-card">
+                <div class="feature-number">2</div>
+                <h3>TF-IDF Features</h3>
+                <p>Preprocessed text is converted into numeric feature vectors
+                   using Term Frequency-Inverse Document Frequency.</p>
+            </div>
+        </div>
+        <div class="col-md-4">
+            <div class="feature-card">
+                <div class="feature-number">3</div>
+                <h3>ML Classification</h3>
+                <p>Three models are trained and compared. The best-performing
+                   model classifies the email as Phishing or Safe.</p>
+            </div>
+        </div>
+    </div>
+</section>
+
+<section class="container pb-5">
+    <h2 class="section-title text-center mb-4">Key Features</h2>
+    <div class="row g-3">
+        <div class="col-md-6">
+            <div class="feature-item">
+                <i class="bi bi-check-circle-fill text-success"></i>
+                <span>Phishing vs. Safe classification with confidence score</span>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="feature-item">
+                <i class="bi bi-check-circle-fill text-success"></i>
+                <span>Risk level assessment (Low, Medium, High)</span>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="feature-item">
+                <i class="bi bi-check-circle-fill text-success"></i>
+                <span>Suspicious URL detection and highlighting</span>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="feature-item">
+                <i class="bi bi-check-circle-fill text-success"></i>
+                <span>Phishing keyword identification and highlighting</span>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="feature-item">
+                <i class="bi bi-check-circle-fill text-success"></i>
+                <span>Model evaluation with confusion matrix and metrics</span>
+            </div>
+        </div>
+        <div class="col-md-6">
+            <div class="feature-item">
+                <i class="bi bi-check-circle-fill text-success"></i>
+                <span>Prediction history tracking</span>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}
